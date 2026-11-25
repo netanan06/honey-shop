@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honey Shop</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #fff8e8;
+  color: #543512;
+}
+
+header {
+  background: #f5bd45;
+  padding: 25px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 32px;
+}
+
+nav {
+  text-align: center;
+  padding: 15px;
+  background: #fff0c5;
+}
+
+section {
+  padding: 25px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.card {
+  background: white;
+  border-radius: 15px;
+  padding: 15px;
+  width: 250px;
+  text-align: center;
+  box-shadow: 0 2px 8px #ddd;
+}
+
+.card img {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+}
+
+button {
+  background: #d99419;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+button:hover {
+  background: #b87910;
+}
+
+input, textarea {
+  width: 95%;
+  padding: 10px;
+  margin: 7px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.cart, .order {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  background: #f5bd45;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1> HONEY SHOP</h1>
+  <p>น้ำผึ้งแท้ หอมหวานจากธรรมชาติ</p>
+</header>
+
+<nav>
+  <a href="#products">สินค้า</a> |
+  <a href="#cart">ตะกร้า</a> |
+  <a href="#order">สั่งซื้อ</a> |
+  <a href="#warehouse">คลังสินค้า</a>
+</nav>
+
+<section id="products">
+  <h2> สินค้าของเรา</h2>
+
+  <div class="products">
+
+    <div class="card">
+      <img src="S_37429253.jpg" alt="น้ำผึ้ง 250 กรัม">
+      <h3>น้ำผึ้งแท้ 250 กรัม</h3>
+      <p>SKU: H001</p>
+      <p>ราคา 89 บาท</p>
+      <button onclick="addCart('H001', 'น้ำผึ้ง 250 กรัม', 89)">
+        เพิ่มลงตะกร้า
+      </button>
+    </div>
+
+    <div class="card">
+      <img src="S_37429254.jpg" alt="น้ำผึ้ง 500 กรัม">
+      <h3>น้ำผึ้งแท้ 500 กรัม</h3>
+      <p>SKU: H002</p>
+      <p>ราคา 159 บาท</p>
+      <button onclick="addCart('H002', 'น้ำผึ้ง 500 กรัม', 159)">
+        เพิ่มลงตะกร้า
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<section id="cart">
+  <h2>🛒 ตะกร้าสินค้า</h2>
+  <div class="cart" id="cartItems">
+    ยังไม่มีสินค้า
+  </div>
+  <h3 id="total">รวม 0 บาท</h3>
+</section>
+
+<section id="order">
+  <h2>📋 ข้อมูลจัดส่ง</h2>
+
+  <div class="order">
+    <input id="customer" placeholder="ชื่อลูกค้า">
+    <input id="phone" placeholder="เบอร์โทรศัพท์">
+    <textarea id="address" placeholder="ที่อยู่จัดส่ง"></textarea>
+
+    <button onclick="placeOrder()">ยืนยันการสั่งซื้อ</button>
+  </div>
+
+  <div id="orderResult"></div>
+</section>
+
+<section id="warehouse">
+  <h2> ระบบหยิบและแพ็กสินค้า (Pick & Pack)</h2>
+  <div class="order" id="warehouseList">
+    ยังไม่มีรายการสั่งซื้อ
+  </div>
+</section>
+
+<footer>
+  HONEY SHOP  | Online Store
+</footer>
+
+<script>
+let cart = [];
+
+function addCart(sku, name, price) {
+  let item = cart.find(x => x.sku === sku);
+
+  if (item) {
+    item.qty++;
+  } else {
+    cart.push({sku, name, price, qty: 1});
+  }
+
+  showCart();
+}
+
+function showCart() {
+  let box = document.getElementById("cartItems");
+  let total = 0;
+
+  if (cart.length === 0) {
+    box.innerHTML = "ยังไม่มีสินค้า";
+  } else {
+    box.innerHTML = "";
+
+    cart.forEach(item => {
+      total += item.price * item.qty;
+
+      box.innerHTML += `
+        <p>
+          ${item.name} x ${item.qty}
+          = ${item.price * item.qty} บาท
+          <button onclick="changeQty('${item.sku}', 1)">+</button>
+          <button onclick="changeQty('${item.sku}', -1)">-</button>
+        </p>
+      `;
+    });
+  }
+
+  document.getElementById("total").innerText =
+    "รวม " + total + " บาท";
+}
+
+function changeQty(sku, amount) {
+  let item = cart.find(x => x.sku === sku);
+
+  item.qty += amount;
+
+  if (item.qty <= 0) {
+    cart = cart.filter(x => x.sku !== sku);
+  }
+
+  showCart();
+}
+
+function placeOrder() {
+  if (cart.length === 0) {
+    alert("กรุณาเลือกสินค้าก่อน");
+    return;
+  }
+
+  let customer = document.getElementById("customer").value;
+  let phone = document.getElementById("phone").value;
+  let address = document.getElementById("address").value;
+
+  if (!customer || !phone || !address) {
+    alert("กรุณากรอกข้อมูลจัดส่งให้ครบ");
+    return;
+  }
+
+  let total = cart.reduce((sum, item) =>
+    sum + item.price * item.qty, 0);
+
+  document.getElementById("orderResult").innerHTML = `
+    <div class="order">
+      <h3> สั่งซื้อสำเร็จ</h3>
+      <p>ลูกค้า: ${customer}</p>
+      <p>โทร: ${phone}</p>
+      <p>ที่อยู่: ${address}</p>
+      <p>ยอดรวม: ${total} บาท</p>
+    </div>
+  `;
+
+  let warehouse = document.getElementById("warehouseList");
+
+  warehouse.innerHTML = `
+    <h3>รายการหยิบสินค้า</h3>
+    ${cart.map(item => `
+      <p>
+        <input type="checkbox">
+        ${item.sku} - ${item.name} จำนวน ${item.qty}
+      </p>
+    `).join("")}
+    <p>ชื่อลูกค้า: ${customer}</p>
+    <p>ที่อยู่: ${address}</p>
+    <button onclick="alert('แพ็กสินค้าเรียบร้อยแล้ว')">
+      ยืนยันแพ็กสินค้า
+    </button>
+  `;
+
+  alert("บันทึกคำสั่งซื้อเรียบร้อย");
+}
+</script>
+
+</body>
+</html>
+
